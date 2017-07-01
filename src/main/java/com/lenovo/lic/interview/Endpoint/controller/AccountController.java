@@ -1,10 +1,10 @@
 package com.lenovo.lic.interview.Endpoint.controller;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +23,7 @@ public class AccountController {
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 	
-	@RequestMapping(method= {RequestMethod.POST}, value="/register")
+	@RequestMapping(method = {RequestMethod.POST}, value="/register")
 	public Map<String, Object> register(@RequestBody Account account) {
 		account.setUsername(account.getUsername().trim());
 		account.setPassword(account.getPassword().trim());
@@ -44,4 +44,12 @@ public class AccountController {
 		return result;
 	}
 	
+	@RequestMapping(method = {RequestMethod.GET}, value="/validate")
+	public Map<String, Object> validate(Principal principal) { 
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", true);
+		result.put("message", "valid user");
+		result.put("user", accountRepository.findByUsername(principal.getName()));
+		return result;
+	}
 }

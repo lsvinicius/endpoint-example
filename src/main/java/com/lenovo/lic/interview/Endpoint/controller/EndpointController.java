@@ -23,9 +23,21 @@ public class EndpointController {
 	private EndpointRepository endpointRepository;
 	
 	@RequestMapping(method=RequestMethod.POST, value="/register")
-	public Endpoint register(@RequestBody Endpoint endpoint) {
-		endpointRepository.save(endpoint);
-		return endpoint;
+	public Map<String, Object> register(@RequestBody Endpoint endpoint, Principal principal) {
+		Map<String, Object> result = new HashMap<String, Object>();
+		result.put("success", false);
+		result.put("message", "invalid data to register endpoint");
+		if(Endpoint.isValid(endpoint)) {
+			result.put("message", "accounts must match");
+			String user = endpoint.getUser();
+			if(user.equals(principal.getName())) {
+				endpointRepository.save(endpoint);
+				result.put("success", true);
+				result.put("message", "successfully registered an endpoint");
+			}
+		}
+		result.put("endpoint", endpoint);
+		return result;
 	}
 	
 	@RequestMapping(method=RequestMethod.PATCH, value="/modify") 
@@ -42,10 +54,19 @@ public class EndpointController {
 	}
 	
 	@RequestMapping(method=RequestMethod.GET, value="/list")
-	public List<Endpoint> listAll() {
+	public Map<String, Object> listAll(Principal principal) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put("success", true);
+		map.put("message", "successfully retrieved list of all endpoints");
 		List<Endpoint> result = new ArrayList<Endpoint>();
-		endpointRepository.findAll().forEach(result::add);
-		return result;
+		endpointRepository.findAll().forEach(endpoint->{
+			if(endpoint.getUser().equals(principal.getName())) {
+				endpoint.enable();
+			}
+			result.add(endpoint);
+		});
+		map.put("endpoints", result);
+		return map;
 	}
 	
 	@RequestMapping(method=RequestMethod.DELETE, value="/remove/{id}")
@@ -70,7 +91,7 @@ public class EndpointController {
 		if(endpointRepository.exists(id)) {
 			Endpoint endpoint = endpointRepository.findOne(id);
 			result.put("message", "invalid credentials");
-			if(endpoint.getAccount().getUsername().equals(principal.getName())) {
+			if(endpoint.getUser().equals(principal.getName())) {
 				result.put("message", "endpoint is already on");
 				if(!endpoint.isOn()) {
 					endpoint.turnOn();
@@ -92,7 +113,7 @@ public class EndpointController {
 		if(endpointRepository.exists(id)) {
 			Endpoint endpoint = endpointRepository.findOne(id);
 			result.put("message", "invalid credentials");
-			if(endpoint.getAccount().getUsername().equals(principal.getName())) {
+			if(endpoint.getUser().equals(principal.getName())) {
 				result.put("message", "endpoint is already off");
 				if(endpoint.isOn()) {
 					endpoint.turnOff();

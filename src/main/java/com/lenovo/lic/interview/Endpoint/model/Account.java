@@ -16,18 +16,11 @@ public class Account {
 	@Column(unique=true)
 	private String username;
 	private String password;
-	private Vector<Endpoint> endpoints;
 	
-	public Account(String username, String password, Vector<Endpoint> endpoints) {
-		this.username = username;
-		this.password = password;
-		this.endpoints = endpoints;
-	}
 	
 	public Account(String username, String password) {
 		this.username = username;
 		this.password = password;
-		this.endpoints = new Vector<Endpoint>();
 	}
 	
 	public Account() {
@@ -50,13 +43,6 @@ public class Account {
 		return password;
 	}
 	
-	public List<Endpoint> getEndpoints() {
-		return endpoints;
-	}
-	
-	public void addMachine(Endpoint machine) {
-		endpoints.add(machine);
-	}
 	
 	public boolean equals(Account account) {
 		return this.username == account.username && this.password == account.password;

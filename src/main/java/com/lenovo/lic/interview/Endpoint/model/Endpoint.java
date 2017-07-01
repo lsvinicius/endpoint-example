@@ -1,9 +1,14 @@
 package com.lenovo.lic.interview.Endpoint.model;
 
+import javax.persistence.Transient;
+import java.util.Random;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
 
 @Entity
 public class Endpoint {
@@ -19,8 +24,11 @@ public class Endpoint {
     private long hd; //GB
     private double celsiusDegrees;
     private Boolean turnedOn;
-    @ManyToOne
-    private Account account;
+    @Column(nullable=false)
+    private String user;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    @Transient 
+    private boolean disabled;
 
     public Endpoint() {
         this.model = "";
@@ -31,7 +39,8 @@ public class Endpoint {
         this.hd = 0;
         this.celsiusDegrees = 0;
         this.turnedOn = false;
-        this.account = new Account();
+        this.user = "";
+        this.disabled = true;
     }
 
 	public Long getId() {
@@ -103,23 +112,64 @@ public class Endpoint {
 	}
 
 	public void turnOn() {
+		Random rand = new Random();
+		this.celsiusDegrees = rand.nextInt(80) + 20;
 		this.turnedOn = true;
 	}
 	
 	public void turnOff() {
+		this.celsiusDegrees = 0;
 		this.turnedOn = false;
 	}
 
-	public Account getAccount() {
-		return account;
+	public String getUser() {
+		return user;
 	}
 
-	public void setAccount(Account owner) {
-		this.account = owner;
+	public void setUser(String user) {
+		this.user = user;
 	}
 	
+	public void enable() {
+		this.disabled = false;
+	}
+	
+	public void disable() {
+		this.disabled = false;
+	}
+	
+	public boolean isDisabled() {
+		return disabled;
+	}
+
 	public boolean equals(Endpoint endpoint) {
 		return this.id == endpoint.id;
+	}
+	
+	public static boolean isValid(Endpoint endpoint) {
+		boolean valid = true;
+		if(endpoint.getUser().isEmpty()) {
+			valid = false;
+		}
+		else if(endpoint.getModel().isEmpty()) {
+			valid = false;
+		}
+		else if(endpoint.getHd() == 0) {
+			valid = false;
+		}
+		else if(endpoint.getMemory() == 0) {
+			valid = false;
+		}
+		else if(endpoint.getName().isEmpty()) {
+			valid = false;
+		}
+		else if(endpoint.getProcessor().isEmpty()) {
+			valid = false;
+		}
+		else if(endpoint.getSerialNumber().isEmpty()) {
+			valid = false;
+		}
+		return valid;
 	}
 
 }
