@@ -41,14 +41,18 @@ public class EndpointController {
 	}
 	
 	@RequestMapping(method=RequestMethod.PATCH, value="/modify") 
-	public Map<String,Object> modify(@RequestBody Endpoint endpoint) {
+	public Map<String,Object> modify(@RequestBody Endpoint endpoint, Principal principal) {
 		Map<String, Object> result = new HashMap<String, Object>();
 		result.put("success", false);
 		result.put("message", "endpoint not found");
 		if(endpointRepository.exists(endpoint.getId())) {
-			endpointRepository.save(endpoint);
-			result.put("message", "endpoint updated");
-			result.put("endpoint", endpoint);
+			result.put("message", "you do not have permission for this machine");
+			if(principal.getName().equals(endpoint.getUser())) {
+				endpointRepository.save(endpoint);
+				result.put("success", true);
+				result.put("message", "endpoint updated");
+				result.put("endpoint", endpoint);
+			}
 		}
 		return result;
 	}
@@ -70,14 +74,18 @@ public class EndpointController {
 	}
 	
 	@RequestMapping(method=RequestMethod.DELETE, value="/remove/{id}")
-	public Map<String,Object> delete(@PathVariable Long id) {
+	public Map<String,Object> delete(@PathVariable Long id, Principal principal) {
 		Map<String,Object> result = new HashMap<String, Object>();
 		result.put("success", false);
 		result.put("message", "endpoint not found");
-		if(endpointRepository.exists(id)) {
-			endpointRepository.delete(id);
-			result.put("success", true);
-			result.put("message", "endpoint removed");
+		Endpoint endpoint = endpointRepository.findOne(id);
+		if(endpoint != null) {
+			result.put("message", "you do not have permission for this machine");
+			if(principal.getName().equals(endpoint.getUser())) {
+				endpointRepository.delete(id);
+				result.put("success", true);
+				result.put("message", "endpoint removed");
+			}
 		}
 		return result;
 	}
@@ -90,7 +98,7 @@ public class EndpointController {
 		result.put("message", "endpoint not found");
 		if(endpointRepository.exists(id)) {
 			Endpoint endpoint = endpointRepository.findOne(id);
-			result.put("message", "invalid credentials");
+			result.put("message", "you do not have permission for this machine");
 			if(endpoint.getUser().equals(principal.getName())) {
 				result.put("message", "endpoint is already on");
 				if(!endpoint.isOn()) {
@@ -112,7 +120,7 @@ public class EndpointController {
 		result.put("message", "endpoint not found");
 		if(endpointRepository.exists(id)) {
 			Endpoint endpoint = endpointRepository.findOne(id);
-			result.put("message", "invalid credentials");
+			result.put("message", "you do not have permission for this machine");
 			if(endpoint.getUser().equals(principal.getName())) {
 				result.put("message", "endpoint is already off");
 				if(endpoint.isOn()) {
