@@ -95,7 +95,7 @@ public class EndpointController {
 		return result;
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/turnon/{id}")
+	@RequestMapping(method=RequestMethod.PATCH, value="/turnon/{id}")
 	public Map<String,Object> turnMachineOn(@PathVariable Long id, Principal principal) {
 		Map<String,Object> result = new HashMap<String, Object>();
 		result.put("success", false);
@@ -118,7 +118,7 @@ public class EndpointController {
 		return result;
 	}
 	
-	@RequestMapping(method=RequestMethod.GET, value="/turnoff/{id}")
+	@RequestMapping(method=RequestMethod.PATCH, value="/turnoff/{id}")
 	public Map<String,Object> turnMachineOff(@PathVariable Long id, Principal principal) {
 		Map<String,Object> result = new HashMap<String, Object>();
 		result.put("success", false);
