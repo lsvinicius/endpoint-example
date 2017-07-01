@@ -113,7 +113,7 @@ public class Endpoint {
 
 	public void turnOn() {
 		Random rand = new Random();
-		this.celsiusDegrees = rand.nextInt(80) + 20;
+		this.celsiusDegrees = rand.nextDouble()*80 + 3.14;
 		this.turnedOn = true;
 	}
 	
