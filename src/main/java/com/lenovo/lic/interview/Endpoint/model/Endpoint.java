@@ -20,7 +20,7 @@ public class Endpoint {
     private double celsiusDegrees;
     private Boolean turnedOn;
     @ManyToOne
-    private User user;
+    private Account account;
 
     public Endpoint() {
         this.model = "";
@@ -31,7 +31,7 @@ public class Endpoint {
         this.hd = 0;
         this.celsiusDegrees = 0;
         this.turnedOn = false;
-        this.user = new User();
+        this.account = new Account();
     }
 
 	public Long getId() {
@@ -110,12 +110,12 @@ public class Endpoint {
 		this.turnedOn = false;
 	}
 
-	public User getUser() {
-		return user;
+	public Account getAccount() {
+		return account;
 	}
 
-	public void setUser(User owner) {
-		this.user = owner;
+	public void setAccount(Account owner) {
+		this.account = owner;
 	}
 	
 	public boolean equals(Endpoint endpoint) {
