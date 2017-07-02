@@ -69,8 +69,7 @@ public class EndpointController {
 				endpoint.enable();
 			}
 			if(endpoint.isOn()) {
-				Random rand = new Random();
-				endpoint.setCelsiusDegrees(rand.nextDouble()*80 + 3.14);
+				endpoint.setCelsiusDegrees(endpoint.generateCelsiusDegrees());
 			}
 			result.add(endpoint);
 		});

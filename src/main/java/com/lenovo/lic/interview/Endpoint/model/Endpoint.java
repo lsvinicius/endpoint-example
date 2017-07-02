@@ -16,15 +16,19 @@ public class Endpoint {
 	@Id
     @GeneratedValue
 	private Long id;
+	@Column(nullable=false, length=50)
     private String model;
+	@Column(nullable=false, length=50)
     private String serialNumber;
+	@Column(nullable=false, length=50)
     private String name;
+	@Column(nullable=false, length=50)
     private String processor;
     private int memory; //GB
     private long hd; //GB
     private double celsiusDegrees;
     private Boolean turnedOn;
-    @Column(nullable=false)
+    @Column(nullable=false, length=50)
     private String user;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     @Transient 
@@ -112,8 +116,7 @@ public class Endpoint {
 	}
 
 	public void turnOn() {
-		Random rand = new Random();
-		this.celsiusDegrees = rand.nextDouble()*80 + 3.14;
+		this.celsiusDegrees = this.generateCelsiusDegrees();
 		this.turnedOn = true;
 	}
 	
@@ -170,6 +173,14 @@ public class Endpoint {
 			valid = false;
 		}
 		return valid;
+	}
+	
+	//this probably shouldn't be in this class
+	public double generateCelsiusDegrees() {
+		Random rand = new Random();
+		double degrees = rand.nextDouble()*80 + 3.14;
+		double result = Double.parseDouble((String.format("%.2f",degrees)));
+		return result;
 	}
 
 }

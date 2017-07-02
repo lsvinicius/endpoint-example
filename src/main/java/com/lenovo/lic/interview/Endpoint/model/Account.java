@@ -10,8 +10,9 @@ public class Account {
 	@Id
 	@GeneratedValue
 	private long id;
-	@Column(unique=true)
+	@Column(unique=true, length=50)
 	private String username;
+	@Column(length=50)
 	private String password;
 	
 	
