@@ -22,6 +22,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.lenovo.lic.interview.Endpoint.model.Account;
 import com.lenovo.lic.interview.Endpoint.repository.AccountRepository;
+import com.lenovo.lic.interview.Endpoint.repository.EndpointRepository;
 
 @SpringBootApplication
 public class EndpointApplication {
@@ -35,7 +36,7 @@ public class EndpointApplication {
 
 	  @Autowired
 	  AccountRepository accountRepository;
-	  
+
 	  @Autowired
 	  private UserDetailsService userDetailsService;
 	   
