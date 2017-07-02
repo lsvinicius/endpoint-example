@@ -29,76 +29,77 @@ public class EndpointApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EndpointApplication.class, args);
 	}
-}
+	
+	@Configuration
+	class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
 
-@Configuration
-class WebSecurityConfiguration extends GlobalAuthenticationConfigurerAdapter {
+	  @Autowired
+	  AccountRepository accountRepository;
+	  
+	  @Autowired
+	  private UserDetailsService userDetailsService;
+	   
 
-  @Autowired
-  AccountRepository accountRepository;
-  
-  @Autowired
-  private UserDetailsService userDetailsService;
-   
+	  @Override
+	  public void configure(AuthenticationManagerBuilder auth) throws Exception {
+	      auth.authenticationProvider(authProvider());
+	  }
 
-  @Override
-  public void configure(AuthenticationManagerBuilder auth) throws Exception {
-      auth.authenticationProvider(authProvider());
-  }
+	  
+	  @Override
+	  public void init(AuthenticationManagerBuilder auth) throws Exception {
+	    auth.userDetailsService(userDetailsService());
+	  }
 
-  
-  @Override
-  public void init(AuthenticationManagerBuilder auth) throws Exception {
-    auth.userDetailsService(userDetailsService());
-  }
+	  @Bean
+	  UserDetailsService userDetailsService() {
+	    return new UserDetailsService() {
 
-  @Bean
-  UserDetailsService userDetailsService() {
-    return new UserDetailsService() {
+	      @Override
+	      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+	        Account account = accountRepository.findByUsername(username);
+	        if(account != null) {
+	        return new User(account.getUsername(), account.getPassword(), true, true, true, true,
+	                AuthorityUtils.createAuthorityList("USER"));
+	        } else {
+	          throw new UsernameNotFoundException("could not find user '"
+	                  + username + "'");
+	        }
+	      }
+	      
+	    };
+	  }
+	  
+	  @Bean
+	  public PasswordEncoder passwordEncoder() {
+		  return new BCryptPasswordEncoder();
+	  }
+	  
+	  @Bean
+	  public DaoAuthenticationProvider authProvider() {
+	      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
+	      authProvider.setUserDetailsService(userDetailsService);
+	      authProvider.setPasswordEncoder(passwordEncoder());
+	      return authProvider;
+	  }
+	}
 
-      @Override
-      public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Account account = accountRepository.findByUsername(username);
-        if(account != null) {
-        return new User(account.getUsername(), account.getPassword(), true, true, true, true,
-                AuthorityUtils.createAuthorityList("USER"));
-        } else {
-          throw new UsernameNotFoundException("could not find user '"
-                  + username + "'");
-        }
-      }
-      
-    };
-  }
-  
-  @Bean
-  public PasswordEncoder passwordEncoder() {
-	  return new BCryptPasswordEncoder();
-  }
-  
-  @Bean
-  public DaoAuthenticationProvider authProvider() {
-      DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
-      authProvider.setUserDetailsService(userDetailsService);
-      authProvider.setPasswordEncoder(passwordEncoder());
-      return authProvider;
-  }
-}
+	@EnableWebSecurity
+	@Configuration
+	class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	 
+	  @Override
+	  protected void configure(HttpSecurity http) throws Exception {
+	    http.authorizeRequests().anyRequest().fullyAuthenticated().and().
+	    httpBasic().and().
+	    csrf().disable();
+	  }
+	  
+	  @Override
+	  public void configure(WebSecurity web) throws Exception {
+		  web.ignoring().antMatchers("/account/register");
+	  }
+	  
+	}
 
-@EnableWebSecurity
-@Configuration
-class WebSecurityConfig extends WebSecurityConfigurerAdapter {
- 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    http.authorizeRequests().anyRequest().fullyAuthenticated().and().
-    httpBasic().and().
-    csrf().disable();
-  }
-  
-  @Override
-  public void configure(WebSecurity web) throws Exception {
-	  web.ignoring().antMatchers("/account/register");
-  }
-  
 }
