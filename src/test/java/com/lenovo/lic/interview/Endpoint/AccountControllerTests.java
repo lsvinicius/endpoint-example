@@ -9,20 +9,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import com.google.gson.Gson;
+import com.lenovo.lic.interview.Endpoint.model.Account;
+
 @RunWith(SpringRunner.class)
-@ContextConfiguration
-@WebAppConfiguration
 @SpringBootTest
 public class AccountControllerTests {
 	@Autowired
@@ -39,9 +37,17 @@ public class AccountControllerTests {
 	}
 	
 	@Test
-	public void testExample() throws Exception {
-		this.mvc.perform(post("/account/register").contentType(MediaType.APPLICATION_JSON)
-		.content("{\"username\": \"novo\", \"password\":\"novo\"}"))
-	    .andExpect(status().isOk()).andExpect(content().string("Honda Civic"));
+	public void testRegister() throws Exception {
+		Account account = new Account("novo", "novo");
+		Gson gson = new Gson();
+		MvcResult result = this.mvc.perform(post("/account/register").contentType(MediaType.APPLICATION_JSON)
+							.content(gson.toJson(account)))
+						    .andExpect(status().isOk())
+						    .andReturn();
+		String content = result.getResponse().getContentAsString();
+		String contentCopy = "{\"success\":true,\"message\":\"account registered successfully\","
+				+ "\"user\":\"novo\"}" + 
+				"";
+		assert content.equals(contentCopy);
 	}
 }
